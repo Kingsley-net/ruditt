@@ -29,7 +29,7 @@ export default function RuditHomepage() {
           <div className="flex items-center gap-2">
             {/* Logo - Update with your actual image */}
             <div className="h-10 w-32  flex items-center justify-center">
-              <img src="images/rudit-logo.png" className="h-20 w-auto"/>
+              <img src="/rudit-logo.png" className="h-20 w-auto"/>
             </div>
           </div>
           <div className="hidden md:flex items-center gap-8">
