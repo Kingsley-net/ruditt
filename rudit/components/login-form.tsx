@@ -95,7 +95,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       }
 
       // Success - redirect to dashboard
-      router.push('/dashboard')
+      router.push('/protected/dashboard')
       router.refresh() // Refresh to update auth state
       
     } catch (error: unknown) {

@@ -10,14 +10,31 @@ import Link from "next/link";
 const supabase = createClient();
 
 export default function DashboardPage() {
+    
   const [stats, setStats] = useState<any>(null);
   const [activities, setActivities] = useState<any[]>([]);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     loadDashboard();
   }, []);
 
   async function loadDashboard() {
+    // fetch current user and extract a display name
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user as any;
+      const name =
+        user?.user_metadata?.full_name ||
+        user?.user_metadata?.name ||
+        user?.user_metadata?.first_name ||
+        (user?.email ? user.email.split("@")[0] : null);
+
+      setUserName(name || null);
+    } catch (err) {
+      setUserName(null);
+    }
+    
     const { data: students } = await supabase.from("students").select("id", { count: "exact" });
     const { data: teachers } = await supabase.from("teachers").select("id", { count: "exact" });
     const { data: parents } = await supabase.from("parents").select("id", { count: "exact" });
@@ -47,7 +64,7 @@ export default function DashboardPage() {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Welcome back</h1>
+          <h1 className="text-2xl font-bold">Welcome back{userName ? `, ${userName}` : ""}</h1>
           <p className="text-muted-foreground">Here’s what’s new today</p>
         </div>
         <Link href="/website-builder">
