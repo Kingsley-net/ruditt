@@ -1,45 +1,67 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+export async function middleware(request: NextRequest) {
+  const response = NextResponse.next()
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
+  const supabase = createMiddlewareClient({
+    req: request,
+    res: response,
+  })
 
-  const { data } = await supabase.auth.getClaims()
-  const user = data?.claims
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
   const pathname = request.nextUrl.pathname
+
+  // ---- PUBLIC ROUTES ----
+  const publicRoutes = [
+    '/',
+    '/auth',
+    '/auth/login',
+    '/auth/signup',
+    '/auth/forgot-password',
+    '/auth/callback',
+  ]
+
+  const isPublicRoute = publicRoutes.some(
+    route =>
+      pathname === route || pathname.startsWith(route)
+  )
+
+  // ---- PROTECTED ROUTES ----
   const isProtectedRoute = pathname.startsWith('/protected')
 
-  if (!user && isProtectedRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
+  // ---- NOT LOGGED IN & TRYING TO ACCESS PROTECTED ----
+  if (!session && isProtectedRoute) {
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/auth/login'
+    loginUrl.searchParams.set('redirectedFrom', pathname)
+
+    return NextResponse.redirect(loginUrl)
   }
 
-  return supabaseResponse
+  // ---- LOGGED IN & TRYING TO ACCESS AUTH PAGES ----
+  if (session && pathname.startsWith('/auth')) {
+    const dashboardUrl = request.nextUrl.clone()
+    dashboardUrl.pathname = '/protected/dashboard'
+
+    return NextResponse.redirect(dashboardUrl)
+  }
+
+  return response
 }
 
 export const config = {
-  matcher: ['/protected/:path*'],
+  matcher: [
+    /*
+     * Apply middleware to all routes except:
+     * - static files
+     * - image optimization
+     * - favicon
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
 }
