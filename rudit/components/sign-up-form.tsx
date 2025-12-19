@@ -222,7 +222,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
       }
 
       // Success - redirect to confirmation page
-      router.push('/auth/confirmation?email=' + encodeURIComponent(email))
+      router.push('/auth/sin-up-success')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred during sign up')
     } finally {
