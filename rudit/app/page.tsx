@@ -1,273 +1,272 @@
 "use client";
 
-import { useState } from "react";
-import { 
-  ArrowRight, 
-  Zap, 
-  Shield, 
-  Clock, 
-  Heart, 
-  Users, 
-  BarChart3, 
-  CheckCircle, 
-  X, 
-  FileText, 
-  CreditCard, 
-  Globe 
+import { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  Zap,
+  Shield,
+  Clock,
+  Heart,
+  Users,
+  BarChart3,
+  CheckCircle,
+  CreditCard,
+  Globe,
+  Moon,
+  Sun,
 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link"; // Add this import
+import Link from "next/link";
+
+/* -------------------- THEME -------------------- */
+function useTheme() {
+  const [theme, setTheme] = useState("light");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (stored) {
+      setTheme(stored);
+      document.documentElement.classList.toggle("dark", stored === "dark");
+    } else if (systemDark) {
+      setTheme("dark");
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("theme", next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
+
+  return { theme, toggleTheme };
+}
 
 export default function RuditHomepage() {
-
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-40 backdrop-blur-md bg-slate-900/80 border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {/* Logo - Update with your actual image */}
-            <div className="h-10 w-32  flex items-center justify-center">
-              <img src="/rudit-logo.png" className="h-20 w-auto"/>
-            </div>
+    <div className="min-h-screen bg-white text-slate-900 dark:bg-[#0B1220] dark:text-white transition-colors">
+
+      {/* -------------------- NAVBAR -------------------- */}
+      <nav className="fixed top-0 inset-x-0 z-50 backdrop-blur bg-white/70 dark:bg-[#0B1220]/70 border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex justify-center items-center "> <img src="/logo.png" className="h-16" /><h1 className="text-cyan-500 font-bold text-lg">Rudit</h1></div>
+
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+            <a href="#platform" className="hover:text-cyan-500">Platform</a>
+            <a href="#how" className="hover:text-cyan-500">How it works</a>
+            <a href="#security" className="hover:text-cyan-500">Security</a>
+            <a href="/auth/login" className="hover:text-cyan-500">Sign In</a>
           </div>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm hover:text-cyan-400 transition">Features</a>
-            <a href="#benefits" className="text-sm hover:text-cyan-400 transition">Benefits</a>
-            <Link href="/auth/sign-up" className="text-sm hover:text-cyan-400 transition">Get Started</Link>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg border border-slate-300 dark:border-slate-700
+                         hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            >
+              {theme === "dark" ? (
+                <Sun className="w-5 h-5 text-yellow-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-slate-700" />
+              )}
+            </button>
+
+            <Link
+              href="/auth/sign-up"
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500
+                         text-white font-semibold"
+            >
+              Start Free
+            </Link>
           </div>
-          <Link 
-            href="/auth/sign-up"
-            className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-semibold text-sm transition transform hover:scale-105"
-          >
-            Sign Up Free
-          </Link>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-40 pb-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Gradient orbs background */}
-          <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-radial from-cyan-500/20 to-transparent rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute top-96 left-0 w-80 h-80 bg-gradient-radial from-teal-500/15 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 text-center">
-            <div className="inline-block mb-6 px-4 py-2 rounded-full bg-slate-800 border border-cyan-500/30">
-              <p className="text-sm text-cyan-400 font-semibold flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                Launching Soon
-              </p>
+      {/* -------------------- HERO -------------------- */}
+      <section className="pt-40 pb-24 px-6">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border
+                            border-cyan-500/30 bg-slate-100 dark:bg-slate-800 mb-6">
+              <Zap className="w-4 h-4 text-cyan-500" />
+              <span className="text-sm font-semibold text-cyan-600 dark:text-cyan-400">
+                Infrastructure for Modern Schools
+              </span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
-              Launch Your School's Complete System in{' '}
-              <span className="bg-gradient-to-r from-cyan-400 via-teal-400 to-cyan-500 bg-clip-text text-transparent">
-                10 Minutes
+            <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
+              Run Your Entire School on{" "}
+              <span className="bg-gradient-to-r from-cyan-500 to-teal-500 bg-clip-text text-transparent">
+                One Platform
               </span>
             </h1>
 
-            <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Rudit gives Nigerian schools everything: professional websites, online fee collection, 
-              digital results, automated attendance - all set up instantly. No technical skills needed.
+            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-xl mb-8">
+              Rudit powers websites, payments, results, attendance, and parent engagement
+              for schools across Nigeria — all in one secure system.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link 
+            <div className="flex gap-4">
+              <Link
                 href="/auth/sign-up"
-                className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold text-lg transition transform hover:scale-105 shadow-lg text-center"
+                className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500
+                           text-white font-bold"
               >
-                Start Free Trial - Get 1 Academic Term Free
+                Launch Your School
               </Link>
-              <button className="px-8 py-4 rounded-xl border border-cyan-500/30 text-cyan-400 hover:bg-slate-800 transition font-semibold flex items-center justify-center gap-2">
-                Watch Demo <ArrowRight className="w-5 h-5" />
+
+              <button className="px-8 py-4 rounded-xl border border-slate-300 dark:border-slate-700">
+                View Demo
               </button>
             </div>
-
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-cyan-400" />
-                <span>10-minute setup</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-cyan-400" />
-                <span>No credit card required</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-cyan-400" />
-                <span>First 10 schools get 50% off</span>
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="flex justify-center gap-16 mt-16 pt-16 border-t border-slate-700">
-              <div>
-                <p className="text-3xl font-bold text-cyan-400">10min</p>
-                <p className="text-slate-400 text-sm mt-2">Setup Time</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-cyan-400">1 Term</p>
-                <p className="text-slate-400 text-sm mt-2">Free Trial</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-cyan-400">50%</p>
-                <p className="text-slate-400 text-sm mt-2">OFF Early Bird</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Problem Section */}
-      <section className="py-20 px-6 bg-slate-800/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Is Your School Still Doing This?
-            </h2>
-            <p className="text-xl text-slate-400">
-              You're not alone. Most Nigerian schools struggle with outdated manual processes.
-            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          {/* Preview grid */}
+          <div className="grid grid-cols-2 gap-4">
             {[
-              {
-                icon: <FileText className="w-12 h-12" />,
-                title: "Manual Processes",
-                description: "Spreadsheets for student records. Paper-based attendance. Hours spent on data entry every week."
-              },
-              {
-                icon: <CreditCard className="w-12 h-12" />,
-                title: "Payment Chaos",
-                description: "Chasing parents for school fees. Manual receipts. No clear records of who's paid and who hasn't."
-              },
-              {
-                icon: <Globe className="w-12 h-12" />,
-                title: "No Online Presence",
-                description: "Parents can't find you on Google. You look outdated compared to competitors. Losing students."
-              }
-            ].map((problem, idx) => (
-              <div key={idx} className="bg-slate-900 p-8 rounded-2xl border-2 border-red-500/20 hover:border-red-500/40 transition group">
-                <div className="text-red-400 mb-4 group-hover:scale-110 transition-transform">
-                  {problem.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-3">{problem.title}</h3>
-                <p className="text-slate-400 leading-relaxed">{problem.description}</p>
+              "Admin Dashboard",
+              "Online Payments",
+              "Results Portal",
+              "Attendance",
+              "Parent Access",
+              "School Website",
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="p-5 rounded-xl bg-slate-100 dark:bg-slate-800
+                           border border-slate-200 dark:border-slate-700"
+              >
+                <CheckCircle className="w-4 h-4 text-cyan-500 mb-2" />
+                <p className="font-medium">{item}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Everything Your School Needs in One Platform
-            </h2>
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-              Stop juggling multiple tools. Rudit brings everything together in one simple system.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Globe className="w-8 h-8" />,
-                title: "Professional School Website",
-                description: "Beautiful templates. Your logo and colors. Live in minutes. Mobile-friendly and modern."
-              },
-              {
-                icon: <CreditCard className="w-8 h-8" />,
-                title: "Online Fee Collection",
-                description: "Parents pay with cards or bank transfer. Instant verification. Automatic receipts."
-              },
-              {
-                icon: <BarChart3 className="w-8 h-8" />,
-                title: "Digital Results Portal",
-                description: "Publish results online. Parents check anytime. No more printing or queues."
-              },
-              {
-                icon: <Clock className="w-8 h-8" />,
-                title: "Automated Attendance",
-                description: "Digital attendance tracking. Generate reports instantly. SMS alerts to parents."
-              },
-              {
-                icon: <Users className="w-8 h-8" />,
-                title: "Parent Portal",
-                description: "Parents see fees, results, attendance in one place. Better engagement."
-              },
-              {
-                icon: <Shield className="w-8 h-8" />,
-                title: "Secure & Reliable",
-                description: "Bank-level encryption. Daily backups. You own your data, always."
-              }
-            ].map((feature, idx) => (
-              <div key={idx} className="group bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-cyan-500 transition hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1">
-                <div className="text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                <p className="text-slate-400 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+      {/* -------------------- METRICS -------------------- */}
+      <section className="py-12 border-y border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div><p className="text-3xl font-bold text-cyan-500">10 mins</p><p className="text-sm text-slate-500">Setup time</p></div>
+          <div><p className="text-3xl font-bold text-cyan-500">100%</p><p className="text-sm text-slate-500">Digital operations</p></div>
+          <div><p className="text-3xl font-bold text-cyan-500">24/7</p><p className="text-sm text-slate-500">Availability</p></div>
+          <div><p className="text-3xl font-bold text-cyan-500">1 Term</p><p className="text-sm text-slate-500">Free trial</p></div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section id="cta" className="py-24 px-6 bg-gradient-to-br from-cyan-900/20 via-slate-800 to-teal-900/20">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-6">
-            <Zap className="w-4 h-4 text-cyan-400" />
-            <span className="text-sm text-cyan-400 font-semibold">Limited Time Offer</span>
-          </div>
-
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Ready to Transform Your School?
+      {/* -------------------- PLATFORM -------------------- */}
+      <section id="platform" className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16">
+            A Complete School Platform
           </h2>
-          <p className="text-xl text-slate-300 mb-10">
-            Join forward-thinking schools that are going digital. Get 1 academic term free trial.
+
+          <div className="grid md:grid-cols-3 gap-10">
+            {[
+              { icon: Globe, title: "School Websites" },
+              { icon: CreditCard, title: "Fee Collection" },
+              { icon: BarChart3, title: "Results & Analytics" },
+              { icon: Clock, title: "Attendance Tracking" },
+              { icon: Users, title: "Parent & Student Portals" },
+              { icon: Shield, title: "Secure Infrastructure" },
+            ].map((f, i) => (
+              <div
+                key={i}
+                className="p-8 rounded-2xl bg-slate-50 dark:bg-slate-800
+                           border border-slate-200 dark:border-slate-700"
+              >
+                <f.icon className="w-8 h-8 text-cyan-500 mb-4" />
+                <h3 className="font-semibold text-xl">{f.title}</h3>
+                <p className="text-slate-600 dark:text-slate-400 mt-2">
+                  Fully integrated, reliable, and built for long-term use.
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* -------------------- HOW IT WORKS -------------------- */}
+      <section id="how" className="py-24 px-6 bg-slate-50 dark:bg-[#0E1628]">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16">How Rudit Works</h2>
+
+          <div className="grid md:grid-cols-3 gap-12">
+            {[
+              ["01", "Create Your School", "Enter your details. Rudit generates your full system automatically."],
+              ["02", "Configure Operations", "Set classes, fees, staff, and academics in minutes."],
+              ["03", "Go Live", "Parents, students, and teachers access the platform instantly."],
+            ].map(([step, title, desc]) => (
+              <div key={step}>
+                <p className="text-cyan-500 font-bold">{step}</p>
+                <h3 className="text-xl font-semibold mt-2 mb-3">{title}</h3>
+                <p className="text-slate-600 dark:text-slate-400">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* -------------------- SECURITY -------------------- */}
+      <section id="security" className="py-24 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <Shield className="w-12 h-12 text-cyan-500 mx-auto mb-4" />
+          <h2 className="text-4xl font-bold mb-4">
+            Built for Reliability and Trust
+          </h2>
+          <p className="text-xl text-slate-600 dark:text-slate-400">
+            Encrypted data, daily backups, and full ownership — your school data
+            remains safe and accessible at all times.
+          </p>
+        </div>
+      </section>
+
+      {/* -------------------- ROADMAP -------------------- */}
+      <section className="py-24 px-6 bg-slate-900 text-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-10">Built to Scale</h2>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            <div><h3 className="font-semibold mb-2">Today</h3><p className="text-slate-400">Core school operations</p></div>
+            <div><h3 className="font-semibold mb-2">Next</h3><p className="text-slate-400">CBT exams & analytics</p></div>
+            <div><h3 className="font-semibold mb-2">Future</h3><p className="text-slate-400">AI tutors & adaptive learning</p></div>
+          </div>
+        </div>
+      </section>
+
+      {/* -------------------- CTA -------------------- */}
+      <section id="cta" className="py-24 px-6 bg-gradient-to-r from-cyan-500 to-teal-500 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6">
+            Start Your Digital School Today
+          </h2>
+          <p className="text-xl mb-8">
+            No credit card required. Free for one academic term.
           </p>
 
-          <Link 
+          <Link
             href="/auth/sign-up"
-            className="px-10 py-5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold text-xl transition-all transform hover:scale-105 shadow-lg inline-flex items-center gap-2 justify-center"
+            className="inline-flex items-center gap-2 px-10 py-5 rounded-xl
+                       bg-white text-slate-900 font-bold text-xl"
           >
-            Start Free Trial Now
+            Get Started
             <ArrowRight className="w-6 h-6" />
           </Link>
-
-          <p className="text-sm text-slate-400 mt-6">
-            No credit card required â¢ Cancel anytime â¢ 10-minute setup
-          </p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-700 py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col justify-center items-center">
-            <div className="h-12 w-40 bg-gradient-to-r from-cyan-500 to-teal-500 rounded flex items-center justify-center mb-4">
-              <span className="font-bold text-xl">RUDIT</span>
-            </div>
-            
-            <p className="text-slate-400">Smart School Management for Nigeria</p>
-            <div className="mt-4 text-slate-400 flex flex-col justify-center items-center">
-              <p className="font-semibold text-white">ruditnigeria@gmail.com</p>
-              <p className="font-semibold text-white">+234 907 339 1780</p>
-              <p className="mt-2">Rivers, Nigeria</p>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-700 pt-8 text-center text-slate-400">
-            <p>© 2026 Rudit. All rights reserved. Built with <Heart className="inline w-4 h-4 text-red-500" /> for Nigerian schools.</p>
-          </div>
-        </div>
+      {/* -------------------- FOOTER -------------------- */}
+      <footer className="border-t border-slate-200 dark:border-slate-800 py-10 text-center">
+        <p className="font-semibold">Rudit</p>
+        <p className="text-slate-500">Smart School Infrastructure for Africa</p>
+        <p className="mt-4 text-slate-500">
+          © {new Date().getFullYear()} Rudit. Built with{" "}
+          <Heart className="inline w-4 h-4 text-red-500" /> in Nigeria.
+        </p>
       </footer>
     </div>
   );

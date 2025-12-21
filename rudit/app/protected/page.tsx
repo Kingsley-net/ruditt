@@ -19,5 +19,6 @@ export default async function ProtectedPage() {
       </p>
       <LogoutButton />
     </div>
+    </div>
   )
 }
