@@ -17,6 +17,7 @@ export default async function ProtectedPage() {
       <p >
         Hello <span>{data.claims.name}</span>
       </p>
+        
       <LogoutButton />
     </div>
     </div>
