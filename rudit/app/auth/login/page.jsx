@@ -31,7 +31,7 @@ export default function Page() {
           />
 <h1 className='text-cyan-500 mb-4 font-bold text-lg'>Rudit</h1>
           
-          <h1 className="text-3xl font-bold mb-2 text-black ">
+          <h1 className="text-3xl font-bold mb-2 text-white dark:text-slate-400 ">
             Sign in to your account
           </h1>
           <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">

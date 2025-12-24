@@ -32,34 +32,12 @@ export function LoginForm({ className, ...props }) {
     setError(null)
 
     try {
-      const { data: userProfile, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .maybeSingle()
-
-      if (profileError && profileError.code === 'PGRST116') {
-        throw new Error('No account found with this email. Please sign up first.')
-      }
-
-      if (profileError) console.error(profileError)
-      if (userProfile && !userProfile.auth_user_id) {
-        throw new Error('Your account setup is incomplete. Please contact support.')
-      }
-
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (signInError) throw signInError
-
-      if (authData.user && userProfile) {
-        await supabase
-          .from('users')
-          .update({ updated_at: new Date().toISOString(), last_login: new Date().toISOString() })
-          .eq('id', userProfile.id)
-      }
 
       router.push('/protected/dashboard')
       router.refresh()
@@ -78,25 +56,22 @@ export function LoginForm({ className, ...props }) {
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card className="relative overflow-hidden border border-gray-200/10 bg-white/5 dark:bg-[#0B1220] backdrop-blur-lg shadow-lg rounded-2xl p-6 sm:p-8 md:p-10 text-gray-900 dark:text-gray-200">
+      <Card className="relative bg-white shadow-lg rounded-2xl p-6 sm:p-8 md:p-10">
         
-        {/* Card Header */}
         <CardHeader className="pb-4 text-center sm:text-left">
           <CardTitle className="text-2xl sm:text-3xl text-black font-bold">
             Welcome Back
           </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
+          <CardDescription className="text-gray-600 mt-1">
             Sign in to your school management account
           </CardDescription>
         </CardHeader>
 
-        {/* Card Content */}
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-6">
             
-            {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-200">
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                 Email Address
               </Label>
               <Input
@@ -106,18 +81,17 @@ export function LoginForm({ className, ...props }) {
                 required
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(null) }}
-                className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-cyan-400 transition"
+                className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 transition"
                 disabled={isLoading}
               />
             </div>
 
-            {/* Password */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
                   Password
                 </Label>
-                <Link href="/auth/forgot-password" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                <Link href="/auth/forgot-password" className="text-sm text-cyan-600 hover:text-cyan-700">
                   Forgot password?
                 </Link>
               </div>
@@ -128,13 +102,13 @@ export function LoginForm({ className, ...props }) {
                   required
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(null) }}
-                  className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-cyan-400 pr-10 transition"
+                  className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 pr-10 transition"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 transition"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition"
                   disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -142,31 +116,28 @@ export function LoginForm({ className, ...props }) {
               </div>
             </div>
 
-            {/* Error */}
             {error && (
-              <div className="rounded-lg bg-red-100 dark:bg-red-900 border border-red-500/30 p-3">
-                <p className="flex items-center text-sm text-red-600 dark:text-red-400 gap-2">
+              <div className="rounded-lg bg-red-100 border border-red-200 p-3">
+                <p className="flex items-center text-sm text-red-700 gap-2">
                   <AlertCircle className="w-4 h-4" />
                   {error}
                 </p>
               </div>
             )}
 
-            {/* Demo */}
             <div className="text-center">
               <button
                 type="button"
                 onClick={useDemoCredentials}
-                className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
+                className="text-xs text-gray-500 hover:text-gray-700 transition"
               >
                 Try demo credentials
               </button>
             </div>
 
-            {/* Submit */}
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-medium flex items-center justify-center gap-2 py-2 sm:py-3"
+              className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-semibold flex items-center justify-center gap-2 py-3"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -181,20 +152,13 @@ export function LoginForm({ className, ...props }) {
               )}
             </Button>
 
-            {/* Sign up */}
-            <div className="text-center text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-200">
               Don't have an account?{' '}
-              <Link href="/auth/sign-up" className="text-gray-900 dark:text-white hover:underline">
+              <Link href="/auth/sign-up" className="text-cyan-600 hover:underline font-medium">
                 Create account
               </Link>
             </div>
 
-            {/* Security */}
-            <div className="rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3 mt-2 text-center">
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                🔒 Your login is secured with 256-bit SSL encryption
-              </p>
-            </div>
           </form>
         </CardContent>
       </Card>

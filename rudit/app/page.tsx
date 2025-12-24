@@ -78,9 +78,16 @@ export default function RuditHomepage() {
             <Link
               href="/auth/sign-up"
               className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500
-                         text-white font-semibold"
+                         text-white font-semibold h-12 w-20 p-4 text-sm"
             >
               Start Free
+            </Link>
+            <Link
+              href="/auth/sign-up"
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500
+                         text-white font-semibold h-10 w-16 text-md md:hidden"
+            >
+              Sign In
             </Link>
           </div>
         </div>
