@@ -14,6 +14,8 @@ import {
   Globe,
   Moon,
   Sun,
+  Menu,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -46,6 +48,7 @@ function useTheme() {
 
 export default function RuditHomepage() {
   const { theme, toggleTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 dark:bg-[#0B1220] dark:text-white transition-colors">
@@ -69,7 +72,7 @@ export default function RuditHomepage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
+               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
@@ -80,23 +83,62 @@ export default function RuditHomepage() {
                 )}
               </button>
 
+              <div className="hidden md:flex items-center gap-2">
+                <Link
+                  href="/auth/login"
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-semibold border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/sign-up"
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-shadow"
+                >
+                  Start Free
+                </Link>
+              </div>
+
+              <div className="md:hidden">
+                <button onClick={() => setMobileMenuOpen(true)} className="p-2">
+                  <Menu className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* -------------------- MOBILE MENU -------------------- */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden" onClick={() => setMobileMenuOpen(false)}>
+          <div className="fixed top-0 right-0 h-full w-64 bg-white dark:bg-[#0B1220] p-6" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setMobileMenuOpen(false)} className="absolute top-5 right-5 text-slate-500 dark:text-slate-400">
+              <X className="w-6 h-6" />
+            </button>
+            
+            <nav className="flex flex-col gap-6 mt-10 text-lg font-medium">
+              <a href="#platform" onClick={() => setMobileMenuOpen(false)} className="hover:text-cyan-500 transition-colors">Platform</a>
+              <a href="#how" onClick={() => setMobileMenuOpen(false)} className="hover:text-cyan-500 transition-colors">How it works</a>
+              <a href="#security" onClick={() => setMobileMenuOpen(false)} className="hover:text-cyan-500 transition-colors">Security</a>
+            </nav>
+
+            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-4">
               <Link
                 href="/auth/login"
-                className="hidden md:inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-semibold border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="inline-flex items-center justify-center px-4 py-3 rounded-md text-base font-semibold border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 Sign In
               </Link>
-
               <Link
                 href="/auth/sign-up"
-                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-shadow"
+                className="inline-flex items-center justify-center px-4 py-3 rounded-md bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-base font-semibold shadow-md hover:shadow-lg transition-shadow"
               >
                 Start Free
               </Link>
             </div>
           </div>
         </div>
-      </nav>
+      )}
 
       {/* -------------------- HERO -------------------- */}
       <section className="pt-40 pb-24 px-6">
