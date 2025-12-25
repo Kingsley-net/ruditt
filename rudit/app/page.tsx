@@ -52,43 +52,48 @@ export default function RuditHomepage() {
 
       {/* -------------------- NAVBAR -------------------- */}
       <nav className="fixed top-0 inset-x-0 z-50 backdrop-blur bg-white/70 dark:bg-[#0B1220]/70 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex justify-center items-center "> <img src="/logo.png" className="h-16" /><h1 className="text-cyan-500 font-bold text-lg">Rudit</h1></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <a href="#platform" className="hover:text-cyan-500">Platform</a>
-            <a href="#how" className="hover:text-cyan-500">How it works</a>
-            <a href="#security" className="hover:text-cyan-500">Security</a>
-            <a href="/auth/login" className="hover:text-cyan-500">Sign In</a>
-          </div>
+            <div className="flex items-center gap-4">
+              <Link href="/" className="flex items-center gap-2">
+                <img src="/logo.png" className="h-8 w-auto" alt="Rudit Logo" />
+                <span className="text-cyan-500 font-bold text-lg">Rudit</span>
+              </Link>
+            </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg border border-slate-300 dark:border-slate-700
-                         hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-            >
-              {theme === "dark" ? (
-                <Sun className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-slate-700" />
-              )}
-            </button>
+            <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+              <a href="#platform" className="hover:text-cyan-500 transition-colors">Platform</a>
+              <a href="#how" className="hover:text-cyan-500 transition-colors">How it works</a>
+              <a href="#security" className="hover:text-cyan-500 transition-colors">Security</a>
+            </div>
 
-            <Link
-              href="/auth/sign-up"
-              className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500
-                         text-white font-semibold h-12 w-20 p-4 text-sm"
-            >
-              Start Free
-            </Link>
-            <Link
-              href="/auth/sign-up"
-              className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500
-                         text-white font-semibold h-10 w-16 text-md md:hidden"
-            >
-              Sign In
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5 text-yellow-400" />
+                ) : (
+                  <Moon className="w-5 h-5 text-slate-700" />
+                )}
+              </button>
+
+              <Link
+                href="/auth/login"
+                className="hidden md:inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-semibold border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                Sign In
+              </Link>
+
+              <Link
+                href="/auth/sign-up"
+                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-gradient-to-r from-cyan-500 to-teal-500 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-shadow"
+              >
+                Start Free
+              </Link>
+            </div>
           </div>
         </div>
       </nav>

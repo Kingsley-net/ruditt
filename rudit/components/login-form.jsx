@@ -91,7 +91,7 @@ export function LoginForm({ className, ...props }) {
                 <Label htmlFor="password" className="text-sm font-medium text-gray-700">
                   Password
                 </Label>
-                <Link href="/auth/forgot-password" className="text-sm text-cyan-600 hover:text-cyan-700">
+                <Link href="/auth/forgot-password" className="text-sm text-cyan-600 hover:text-cyan-700 font-medium">
                   Forgot password?
                 </Link>
               </div>
@@ -108,7 +108,7 @@ export function LoginForm({ className, ...props }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
                   disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -129,7 +129,7 @@ export function LoginForm({ className, ...props }) {
               <button
                 type="button"
                 onClick={useDemoCredentials}
-                className="text-xs text-gray-500 hover:text-gray-700 transition"
+                className="text-xs text-gray-500 hover:text-gray-600 transition"
               >
                 Try demo credentials
               </button>
@@ -154,7 +154,7 @@ export function LoginForm({ className, ...props }) {
 
             <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-200">
               Don't have an account?{' '}
-              <Link href="/auth/sign-up" className="text-cyan-600 hover:underline font-medium">
+              <Link href="/auth/sign-up" className="text-cyan-600 hover:text-cyan-700 hover:underline font-medium">
                 Create account
               </Link>
             </div>

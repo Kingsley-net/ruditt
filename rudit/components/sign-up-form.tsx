@@ -181,7 +181,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="location" className="text-sm font-medium text-gray-700">Location (Optional)</Label>
-                    <button type="button" onClick={detectLocation} disabled={isDetectingLocation} className="text-xs text-cyan-600 hover:text-cyan-700 flex items-center gap-1">
+                    <button type="button" onClick={detectLocation} disabled={isDetectingLocation} className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1">
                       {isDetectingLocation ? <><Loader2 className="w-3 h-3 animate-spin" />Detecting...</> : 'Auto-detect'}
                     </button>
                   </div>
@@ -246,7 +246,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
 
               <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-200">
                 Already have an account?{' '}
-                <Link href="/auth/login" className="text-cyan-600 hover:underline font-medium">Log in</Link>
+                <Link href="/auth/login" className="text-cyan-600 hover:text-cyan-700 hover:underline font-medium">Log in</Link>
               </div>
             </form>
           </CardContent>

@@ -37,13 +37,13 @@ export default function DashboardPage() {
   const avatarLetter = (username || userEmail || 'U').charAt(0).toUpperCase()
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 flex text-gray-800 dark:text-slate-200">
 
       {/* ================= SIDEBAR (DESKTOP) ================= */}
-      <aside className="hidden md:flex w-64 bg-white border-r flex-col">
-        <div className="h-16 flex items-center gap-2 px-6 border-b">
+      <aside className="hidden md:flex w-64 bg-white dark:bg-slate-800/60 border-r dark:border-slate-700 flex-col">
+        <div className="h-16 flex items-center gap-2 px-6 border-b dark:border-slate-700">
           <Image src="/logo.png" alt="Rudit" width={32} height={32} />
-          <span className="font-bold text-cyan-600 text-lg">Rudit</span>
+          <span className="font-bold text-cyan-600 dark:text-cyan-500 text-lg">Rudit</span>
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2 text-sm">
@@ -60,12 +60,12 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col">
 
         {/* ================= HEADER ================= */}
-        <header className="h-16 bg-white border-b flex items-center justify-between px-4 md:px-6">
+        <header className="h-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur border-b dark:border-slate-700 flex items-center justify-between px-4 md:px-6">
 
           {/* LEFT */}
           <div className="flex items-center gap-3">
             <button
-              className="md:hidden"
+              className="md:hidden text-gray-600 dark:text-slate-300"
               onClick={() => setMobileOpen(true)}
             >
               <Menu />
@@ -74,31 +74,31 @@ export default function DashboardPage() {
             {/* Mobile Logo */}
             <div className="flex md:hidden items-center gap-2">
               <Image src="/logo.png" alt="Rudit" width={28} height={28} />
-              <span className="font-bold text-cyan-600">Rudit</span>
+              <span className="font-bold text-cyan-600 dark:text-cyan-500">Rudit</span>
             </div>
 
             {/* Desktop Search */}
-            <div className="hidden md:flex items-center gap-2 border rounded-lg px-3 h-10 w-96">
-              <Search size={16} className="text-gray-400" />
+            <div className="hidden md:flex items-center gap-2 border border-gray-300 dark:border-slate-600 rounded-lg px-3 h-10 w-96 bg-gray-100 dark:bg-slate-700/50">
+              <Search size={16} className="text-gray-400 dark:text-slate-400" />
               <input
                 type="search"
                 placeholder="Search"
-                className="w-full outline-none text-sm"
+                className="w-full bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-slate-400"
               />
             </div>
           </div>
 
           {/* RIGHT */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 border rounded-xl px-3 py-1.5">
+            <div className="flex items-center gap-2 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-1.5">
               <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
                 {avatarLetter}
               </div>
               <div className="hidden sm:block leading-tight">
-                <p className="text-sm font-semibold">
+                <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                   {username || 'Admin User'}
                 </p>
-                <p className="text-xs text-gray-500">{userEmail}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">{userEmail}</p>
               </div>
             </div>
           </div>
@@ -106,14 +106,14 @@ export default function DashboardPage() {
 
         {/* ================= MOBILE SIDEBAR ================= */}
         {mobileOpen && (
-          <div className="fixed inset-0 z-50 bg-black/40 md:hidden">
-            <div className="w-64 bg-white h-full p-4">
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setMobileOpen(false)}>
+            <div className="w-64 bg-white dark:bg-slate-800 h-full p-4" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <Image src="/logo.png" alt="Rudit" width={28} height={28} />
-                  <span className="font-bold text-cyan-600">Rudit</span>
+                  <span className="font-bold text-cyan-600 dark:text-cyan-500">Rudit</span>
                 </div>
-                <button onClick={() => setMobileOpen(false)}>✕</button>
+                <button onClick={() => setMobileOpen(false)} className="text-gray-500 dark:text-slate-400">✕</button>
               </div>
 
               <nav className="space-y-3 text-sm">
@@ -130,8 +130,8 @@ export default function DashboardPage() {
 
         {/* ================= CONTENT ================= */}
         <main className="flex-1 p-6">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <p className="text-gray-600 dark:text-slate-400 mt-1">
             Welcome back{username && `, ${username}`}! Here’s what’s happening today.
           </p>
 
@@ -154,7 +154,7 @@ export default function DashboardPage() {
 
 function SidebarItem({ icon, label }) {
   return (
-    <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer">
+    <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700/50 cursor-pointer">
       {icon}
       <span>{label}</span>
     </div>
@@ -163,9 +163,9 @@ function SidebarItem({ icon, label }) {
 
 function MetricCard({ title, value }) {
   return (
-    <div className="bg-white border rounded-xl p-4">
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-2xl font-bold mt-1">{value}</p>
+    <div className="bg-white dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-xl p-4">
+      <p className="text-sm text-gray-500 dark:text-slate-400">{title}</p>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
     </div>
   )
 }
