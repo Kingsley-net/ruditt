@@ -15,12 +15,28 @@ import {
   Settings,
 } from 'lucide-react'
 
+import ClassicSchoolTemplate from './templates/classic-school/page'
+import ModernAcademyTemplate from './templates/modern-academy/page'
+import PlayfulKindergartenTemplate from './templates/playful-kindergarten/page'
+import OnlineUniversityTemplate from './templates/online-university/page'
+import MinimalistInstituteTemplate from './templates/minimalist-institute/page'
+
 const supabase = createClient()
 
-export default function DashboardPage() {
+const templates = {
+  'Classic School': <ClassicSchoolTemplate />,
+  'Modern Academy': <ModernAcademyTemplate />,
+  'Playful Kindergarten': <PlayfulKindergartenTemplate />,
+  'Online University': <OnlineUniversityTemplate />,
+  'Minimalist Institute': <MinimalistInstituteTemplate />,
+};
+
+
+export default function WebsiteBuilderPage() {
   const [username, setUsername] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
 
   useEffect(() => {
     loadUser()
@@ -47,11 +63,11 @@ export default function DashboardPage() {
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2 text-sm">
-          <Link href="/protected/dashboard"><SidebarItem icon={<LayoutDashboard size={18} />} label="Dashboard" active /></Link>
+          <Link href="/protected/dashboard"><SidebarItem icon={<LayoutDashboard size={18} />} label="Dashboard" /></Link>
           <Link href="/protected/students"><SidebarItem icon={<Users size={18} />} label="Students" /></Link>
           <Link href="/protected/teachers"><SidebarItem icon={<GraduationCap size={18} />} label="Teachers" /></Link>
           <Link href="/protected/messaging"><SidebarItem icon={<MessageSquare size={18} />} label="Messaging" /></Link>
-          <Link href="/protected/website-builder"><SidebarItem icon={<Globe size={18} />} label="Website Builder" /></Link>
+          <Link href="/protected/website-builder"><SidebarItem icon={<Globe size={18} />} label="Website Builder" active/></Link>
           <Link href="/protected/settings"><SidebarItem icon={<Settings size={18} />} label="Settings" /></Link>
         </nav>
       </aside>
@@ -117,11 +133,11 @@ export default function DashboardPage() {
               </div>
 
               <nav className="space-y-3 text-sm">
-                <Link href="/protected/dashboard"><SidebarItem label="Dashboard" active /></Link>
+                <Link href="/protected/dashboard"><SidebarItem label="Dashboard" /></Link>
                 <Link href="/protected/students"><SidebarItem label="Students" /></Link>
                 <Link href="/protected/teachers"><SidebarItem label="Teachers" /></Link>
                 <Link href="/protected/messaging"><SidebarItem label="Messaging" /></Link>
-                <Link href="/protected/website-builder"><SidebarItem label="Website Builder" /></Link>
+                <Link href="/protected/website-builder"><SidebarItem label="Website Builder" active/></Link>
                 <Link href="/protected/settings"><SidebarItem label="Settings" /></Link>
               </nav>
             </div>
@@ -130,20 +146,33 @@ export default function DashboardPage() {
 
         {/* ================= CONTENT ================= */}
         <main className="flex-1 p-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-          <p className="text-gray-600 dark:text-slate-400 mt-1">
-            Welcome back{username && `, ${username}`}! Here’s what’s happening today.
-          </p>
-
-          {/* === METRIC CARDS (REAL DATA GOES HERE) === */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            <MetricCard title="Total Students" value="12,750" />
-            <MetricCard title="Total Teachers" value="250" />
-            <MetricCard title="Attendance Rate" value="92.5%" />
-            <MetricCard title="Revenue This Month" value="₦42m" />
-          </div>
-
-          {/* Next sections: charts, calendar, notice board */}
+          {selectedTemplate ? (
+            <div>
+              <button onClick={() => setSelectedTemplate(null)} className="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg mb-4">
+                &larr; Back to Templates
+              </button>
+              <div className="border rounded-lg overflow-hidden">
+                {templates[selectedTemplate]}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Website Builder</h1>
+              <p className="text-gray-600 dark:text-slate-400 mt-1">
+                Choose a template to start building your school's website.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {Object.keys(templates).map(name => (
+                  <TemplateCard 
+                    key={name} 
+                    name={name} 
+                    onSelect={setSelectedTemplate}
+                    preview={templates[name]}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
@@ -167,11 +196,16 @@ function SidebarItem({ icon, label, active }) {
     )
   }
 
-function MetricCard({ title, value }) {
-  return (
-    <div className="bg-white dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-xl p-4">
-      <p className="text-sm text-gray-500 dark:text-slate-400">{title}</p>
-      <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
-    </div>
-  )
-}
+  function TemplateCard({ name, onSelect, preview }) {
+    return (
+      <div className="bg-white dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-xl p-4 flex flex-col h-[400px]">
+        <div className="flex-grow overflow-hidden rounded-lg border dark:border-slate-700">
+          <div className="transform scale-[0.25] origin-top-left w-[1280px] h-[1600px]">
+              {preview}
+          </div>
+        </div>
+        <p className="text-lg font-semibold text-gray-900 dark:text-white mt-4">{name}</p>
+        <button onClick={() => onSelect(name)} className="w-full mt-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Edit</button>
+      </div>
+    )
+  }

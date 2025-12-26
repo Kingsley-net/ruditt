@@ -17,7 +17,7 @@ import {
 
 const supabase = createClient()
 
-export default function DashboardPage() {
+export default function StudentsPage() {
   const [username, setUsername] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -47,8 +47,8 @@ export default function DashboardPage() {
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2 text-sm">
-          <Link href="/protected/dashboard"><SidebarItem icon={<LayoutDashboard size={18} />} label="Dashboard" active /></Link>
-          <Link href="/protected/students"><SidebarItem icon={<Users size={18} />} label="Students" /></Link>
+          <Link href="/protected/dashboard"><SidebarItem icon={<LayoutDashboard size={18} />} label="Dashboard" /></Link>
+          <Link href="/protected/students"><SidebarItem icon={<Users size={18} />} label="Students" active/></Link>
           <Link href="/protected/teachers"><SidebarItem icon={<GraduationCap size={18} />} label="Teachers" /></Link>
           <Link href="/protected/messaging"><SidebarItem icon={<MessageSquare size={18} />} label="Messaging" /></Link>
           <Link href="/protected/website-builder"><SidebarItem icon={<Globe size={18} />} label="Website Builder" /></Link>
@@ -117,8 +117,8 @@ export default function DashboardPage() {
               </div>
 
               <nav className="space-y-3 text-sm">
-                <Link href="/protected/dashboard"><SidebarItem label="Dashboard" active /></Link>
-                <Link href="/protected/students"><SidebarItem label="Students" /></Link>
+                <Link href="/protected/dashboard"><SidebarItem label="Dashboard" /></Link>
+                <Link href="/protected/students"><SidebarItem label="Students" active/></Link>
                 <Link href="/protected/teachers"><SidebarItem label="Teachers" /></Link>
                 <Link href="/protected/messaging"><SidebarItem label="Messaging" /></Link>
                 <Link href="/protected/website-builder"><SidebarItem label="Website Builder" /></Link>
@@ -130,20 +130,10 @@ export default function DashboardPage() {
 
         {/* ================= CONTENT ================= */}
         <main className="flex-1 p-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Students</h1>
           <p className="text-gray-600 dark:text-slate-400 mt-1">
-            Welcome back{username && `, ${username}`}! Here’s what’s happening today.
+            Manage your students here.
           </p>
-
-          {/* === METRIC CARDS (REAL DATA GOES HERE) === */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            <MetricCard title="Total Students" value="12,750" />
-            <MetricCard title="Total Teachers" value="250" />
-            <MetricCard title="Attendance Rate" value="92.5%" />
-            <MetricCard title="Revenue This Month" value="₦42m" />
-          </div>
-
-          {/* Next sections: charts, calendar, notice board */}
         </main>
       </div>
     </div>
@@ -166,12 +156,3 @@ function SidebarItem({ icon, label, active }) {
       </div>
     )
   }
-
-function MetricCard({ title, value }) {
-  return (
-    <div className="bg-white dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-xl p-4">
-      <p className="text-sm text-gray-500 dark:text-slate-400">{title}</p>
-      <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
-    </div>
-  )
-}
