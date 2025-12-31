@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const { html } = await request.json();
 
@@ -17,7 +17,7 @@ export async function POST(request) {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (e) {
+  } catch (e: any) {
     console.error('Server error:', e);
     return new NextResponse(`Server error: ${e.message}`, { status: 500 });
   }

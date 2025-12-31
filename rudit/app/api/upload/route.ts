@@ -1,25 +1,25 @@
 'use client'
 import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 
 // Initialize Supabase client
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function POST(request) {
+export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file');
+    const file = formData.get('file') as File;
 
     if (!file) {
       return new NextResponse('No file provided', { status: 400 });
     }
 
-    const filePath = `public/${Date.now()}_${file.name}`;
+    const filePath = `${Date.now()}_${file.name}`;
 
-    const { data, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('images') 
       .upload(filePath, file);
 
@@ -29,20 +29,15 @@ export async function POST(request) {
     }
 
     // Get the public URL
-    const { publicURL, error: urlError } = supabase.storage
+    const { data: { publicUrl } } = supabase.storage
       .from('images')
       .getPublicUrl(filePath);
 
-    if (urlError) {
-      console.error('Supabase URL error:', urlError);
-      return new NextResponse(`Error getting public URL: ${urlError.message}`, { status: 500 });
-    }
-
-    return new NextResponse(JSON.stringify({ url: publicURL }), { 
+    return new NextResponse(JSON.stringify({ url: publicUrl }), { 
       status: 200, 
       headers: { 'Content-Type': 'application/json' } 
     });
-  } catch (e) {
+  } catch (e: any) {
     console.error('Server error:', e);
     return new NextResponse(`Server error: ${e.message}`, { status: 500 });
   }
