@@ -80,7 +80,7 @@ export default function WebsiteBuilderPage() {
 
     const isConfirmed = confirm(
         `You are about to publish the website for "${school.name}".\n\n` +
-        `This will make it live at:\nhttps://ruditt.vercel.app/app/sites/${school.slug}\n\n` +
+        `This will make it live at:\nhttps://ruditt.vercel.app/sites/${school.slug}\n\n` +
         `Are you sure you want to continue?`
     );
 
@@ -164,7 +164,7 @@ export default function WebsiteBuilderPage() {
           </div>
           <div className="flex items-center gap-3">
              {school && (
-                <Link href={`https://ruditt.vercel.app/app/sites/${school.slug}`} target="_blank" className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                <Link href={`https://ruditt.vercel.app/sites/${school.slug}`} target="_blank" className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
                     <Eye size={16} />
                     <span>Preview</span>
                 </Link>

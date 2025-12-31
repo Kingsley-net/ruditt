@@ -259,7 +259,7 @@ export default function SettingsPage() {
                                 <div>
                                     <label htmlFor="schoolSlug" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">School URL</label>
                                     <div className="flex items-center">
-                                        <span className="text-gray-500 px-3 py-3 bg-gray-100 dark:bg-slate-700/50 border border-r-0 border-gray-300 dark:border-slate-600 rounded-l-lg">https://ruditt.vercel.app/app/sites/</span>
+                                        <span className="text-gray-500 px-3 py-3 bg-gray-100 dark:bg-slate-700/50 border border-r-0 border-gray-300 dark:border-slate-600 rounded-l-lg">https://ruditt.vercel.app/sites/</span>
                                         <input 
                                             type="text" 
                                             id="schoolSlug"
@@ -284,8 +284,8 @@ export default function SettingsPage() {
                                                 <p className="font-semibold text-green-800 dark:text-green-300">Published</p>
                                                 <div className="mt-2 text-sm">
                                                     <span className="text-gray-600 dark:text-slate-300">Your site is live at: </span>
-                                                    <Link href={`https://ruditt.vercel.app/app/sites/${school.slug}`} target="_blank" className="text-blue-600 dark:text-blue-500 hover:underline inline-flex items-center gap-1 font-medium">
-                                                        ruditt.vercel.app/app/sites/{school.slug}
+                                                    <Link href={`https://ruditt.vercel.app/sites/${school.slug}`} target="_blank" className="text-blue-600 dark:text-blue-500 hover:underline inline-flex items-center gap-1 font-medium">
+                                                        ruditt.vercel.app/sites/{school.slug}
                                                         <ExternalLink size={14} />
                                                     </Link>
                                                 </div>
