@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function SchoolSitePage(props) {
+  // ✅ params MUST be awaited
   const params = await props.params;
   const schoolSlug = params.schoolSlug;
 

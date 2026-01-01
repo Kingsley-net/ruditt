@@ -284,7 +284,7 @@ export default function SettingsPage() {
                                                 <p className="font-semibold text-green-800 dark:text-green-300">Published</p>
                                                 <div className="mt-2 text-sm">
                                                     <span className="text-gray-600 dark:text-slate-300">Your site is live at: </span>
-                                                    <Link href={`https://ruditt.vercel.app/sites/${school.slug}`} target="_blank" className="text-blue-600 dark:text-blue-500 hover:underline inline-flex items-center gap-1 font-medium">
+                                                    <Link href={`/sites/${school.slug}`} target="_blank" className="text-blue-600 dark:text-blue-500 hover:underline inline-flex items-center gap-1 font-medium">
                                                         ruditt.vercel.app/sites/{school.slug}
                                                         <ExternalLink size={14} />
                                                     </Link>
