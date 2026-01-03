@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { Eye, EyeOff, User, School, Users, MapPin, Loader2, Check, X, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, User, School, Users, MapPin, Loader2, Check, X, AlertCircle, Upload } from 'lucide-react'
 
 export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   // Form state
@@ -26,6 +26,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
   const [schoolName, setSchoolName] = useState('')
   const [numberOfStudents, setNumberOfStudents] = useState('')
   const [location, setLocation] = useState('')
+  const [logoFile, setLogoFile] = useState<File | null>(null)
   
   // UI state
   const [showPassword, setShowPassword] = useState(false)
@@ -35,7 +36,6 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
   const [passwordStrength, setPasswordStrength] = useState(0)
   const router = useRouter()
 
-  // Password strength checker
   useEffect(() => {
     if (!password) {
       setPasswordStrength(0)
@@ -50,7 +50,6 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     setPasswordStrength(strength)
   }, [password])
 
-  // Auto-detect location
   const detectLocation = async () => {
     if (!navigator.geolocation) {
       setError("Geolocation is not supported by your browser")
@@ -79,178 +78,303 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password !== confirmPassword) {
-      setError("Passwords don't match")
-      return
-    }
-    if (passwordStrength < 3) {
-        setError("Please use a stronger password")
-        return
-    }
-
+    if (password !== confirmPassword) return setError("Passwords don't match");
+    if (passwordStrength < 3) return setError("Please use a stronger password");
+  
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
-
+  
     try {
+      // 1. AUTH SIGN UP
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            name: name.trim(),
-            school_name: schoolName.trim(),
-            number_of_students: numberOfStudents ? parseInt(numberOfStudents) : null,
-            location: location.trim() || null
-          }
+          data: { full_name: name.trim(), role: 'admin' }
         },
       })
-
+  
       if (signUpError) throw signUpError
-      router.push('/auth/sign-up-success')
+      if (!authData.user) throw new Error("Signup failed")
 
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred during sign up')
+      // 2. LOGO UPLOAD (Optional)
+      let logoUrl = null
+      if (logoFile) {
+        const fileExt = logoFile.name.split('.').pop()
+        const fileName = `${authData.user.id}-${Math.random()}.${fileExt}`
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, logoFile)
+        
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName)
+          logoUrl = publicUrl
+        }
+      }
+  
+      // 3. CREATE SCHOOL
+      const generatedSlug = schoolName.trim().toLowerCase().replace(/\s+/g, '-')
+      const { data: newSchool, error: schoolError } = await supabase
+        .from('schools')
+        .insert([
+          { 
+            name: schoolName.trim(), 
+            slug: generatedSlug,
+            admin_id: authData.user.id,
+            logo_url: logoUrl,
+          
+          }
+        ])
+        .select().single()
+  
+      if (schoolError) throw schoolError
+  
+      // 4. UPDATE PROFILE
+      await supabase.from('profiles').update({ school_id: newSchool.id }).eq('id', authData.user.id)
+  
+      router.push('/auth/sign-up-success')
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during sign up')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const passwordRequirements = [
-    { label: 'At least 8 characters', met: password.length >= 8 },
-    { label: 'Uppercase letter', met: /[A-Z]/.test(password) },
-    { label: 'Lowercase letter', met: /[a-z]/.test(password) },
-    { label: 'Number', met: /[0-9]/.test(password) },
-    { label: 'Special character', met: /[^A-Za-z0-9]/.test(password) },
-  ]
-
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card className="relative bg-white shadow-lg rounded-2xl p-6 sm:p-8">
-        <div className="relative z-10">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold tracking-tight text-gray-900">
-              Create Your Account
-            </CardTitle>
-            <CardDescription className="text-gray-600">
-              Join our platform and start managing your school efficiently
-            </CardDescription>
-          </CardHeader>
+      <Card className="relative bg-white dark:bg-gray-900 shadow-lg rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 border border-gray-200 dark:border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+            Create Your Account
+          </CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
+            Join our platform and start managing your school
+          </CardDescription>
+        </CardHeader>
 
-          <CardContent>
-            <form onSubmit={handleSignUp} className="space-y-6">
-              {/* --- Personal Information --- */}
-              <div className="space-y-4 pt-4 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <User className="w-5 h-5 text-cyan-600" />
-                  Personal Information
-                </h3>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name *</Label>
-                  <Input id="name" type="text" placeholder="Enter your full name" required value={name} onChange={(e) => setName(e.target.value)} className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500" disabled={isLoading} />
-                </div>
+        <CardContent>
+          <form onSubmit={handleSignUp} className="space-y-6">
+            {/* Personal Info */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+              <h3 className="text-xs sm:text-sm font-bold uppercase text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                <User size={14} className="sm:size-4" /> 
+                <span>Admin Details</span>
+              </h3>
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">
+                  Full Name
+                </Label>
+                <Input 
+                  id="name"
+                  placeholder="John Doe" 
+                  required 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  disabled={isLoading}
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">
+                  Email
+                </Label>
+                <Input 
+                  id="email"
+                  type="email" 
+                  placeholder="admin@school.com" 
+                  required 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  disabled={isLoading}
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                />
+              </div>
+            </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address *</Label>
-                  <Input id="email" type="email" placeholder="Enter your email" required value={email} onChange={(e) => setEmail(e.target.value)} className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500" disabled={isLoading} />
-                </div>
+            {/* School Info */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+              <h3 className="text-xs sm:text-sm font-bold uppercase text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                <School size={14} className="sm:size-4" />
+                <span>School Details</span>
+              </h3>
+              <div className="space-y-2">
+                <Label htmlFor="schoolName" className="text-gray-700 dark:text-gray-300">
+                  School Name
+                </Label>
+                <Input 
+                  id="schoolName"
+                  placeholder="Green Valley Academy" 
+                  required 
+                  value={schoolName} 
+                  onChange={(e) => setSchoolName(e.target.value)} 
+                  disabled={isLoading}
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                />
+              </div>
+              
+              {/* Logo Upload */}
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  School Logo
+                </Label>
+                <label className="flex flex-col sm:flex-row items-center justify-center gap-2 p-4 border-2 border-dashed rounded-lg md:rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 border-gray-300 dark:border-gray-700 transition-colors">
+                  <Upload size={18} className="text-gray-400 dark:text-gray-500" />
+                  <span className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[200px] text-center">
+                    {logoFile ? logoFile.name : 'Upload Logo (Optional)'}
+                  </span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+                    disabled={isLoading}
+                  />
+                </label>
               </div>
 
-              {/* --- School Information --- */}
-              <div className="space-y-4 pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <School className="w-5 h-5 text-cyan-600" />
-                  School Information
-                </h3>
-                
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="schoolName" className="text-sm font-medium text-gray-700">School Name *</Label>
-                  <Input id="schoolName" type="text" placeholder="Enter your school name" required value={schoolName} onChange={(e) => setSchoolName(e.target.value)} className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500" disabled={isLoading} />
+                  <Label htmlFor="students" className="text-gray-700 dark:text-gray-300">
+                    Students (Optional)
+                  </Label>
+                  <Input 
+                    id="students"
+                    placeholder="500" 
+                    type="number" 
+                    value={numberOfStudents} 
+                    onChange={(e) => setNumberOfStudents(e.target.value)}
+                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="numberOfStudents" className="text-sm font-medium text-gray-700">Number of Students (Optional)</Label>
+                  <Label htmlFor="location" className="text-gray-700 dark:text-gray-300">
+                    Location (Optional)
+                  </Label>
                   <div className="relative">
-                    <Input id="numberOfStudents" type="number" min="1" placeholder="e.g., 150" value={numberOfStudents} onChange={(e) => setNumberOfStudents(e.target.value)} className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 pl-10" disabled={isLoading} />
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="location" className="text-sm font-medium text-gray-700">Location (Optional)</Label>
-                    <button type="button" onClick={detectLocation} disabled={isDetectingLocation} className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1">
-                      {isDetectingLocation ? <><Loader2 className="w-3 h-3 animate-spin" />Detecting...</> : 'Auto-detect'}
+                    <Input 
+                      id="location"
+                      placeholder="City, Country" 
+                      value={location} 
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 pr-10"
+                    />
+                    <button 
+                      type="button" 
+                      onClick={detectLocation} 
+                      disabled={isDetectingLocation}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 disabled:opacity-50 p-1"
+                      aria-label="Detect location"
+                    >
+                      {isDetectingLocation ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <MapPin size={16} />
+                      )}
                     </button>
                   </div>
-                  <div className="relative">
-                    <Input id="location" type="text" placeholder="e.g., City, Country" value={location} onChange={(e) => setLocation(e.target.value)} className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 pl-10" disabled={isLoading} />
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  </div>
                 </div>
               </div>
+            </div>
 
-              {/* --- Account Security --- */}
-              <div className="space-y-4 pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-800">Account Security</h3>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password *</Label>
-                  <div className="relative">
-                    <Input id="password" type={showPassword ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Create a strong password" className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 pr-10" disabled={isLoading} />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" disabled={isLoading}>
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  
-                  {password && (
-                    <div className="space-y-2 pt-2">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1.5 bg-gray-200 rounded-full"><div className={cn("h-full rounded-full", passwordStrength <= 2 ? "bg-red-500" : passwordStrength <= 3 ? "bg-yellow-500" : "bg-green-500")} style={{ width: `${(passwordStrength / 5) * 100}%` }} /></div>
-                        <span className={cn("text-xs font-medium", passwordStrength <= 2 ? "text-red-600" : passwordStrength <= 3 ? "text-yellow-600" : "text-green-600")}>
-                          {['Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'][passwordStrength - 1]}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 pt-1">
-                        {passwordRequirements.map((req, i) => (
-                          <div key={i} className="flex items-center gap-2">
-                            {req.met ? <Check className="w-3.5 h-3.5 text-green-600" /> : <X className="w-3.5 h-3.5 text-gray-400" />}
-                            <span className={cn("text-xs", req.met ? "text-gray-700" : "text-gray-500")}>{req.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+            {/* Passwords */}
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+              <h3 className="text-xs sm:text-sm font-bold uppercase text-gray-500 dark:text-gray-400">
+                Security
+              </h3>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Input 
+                    id="password"
+                    type={showPassword ? 'text' : 'password'} 
+                    placeholder="••••••••" 
+                    required 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 pr-10"
+                  />
+                  <button 
+                    type="button" 
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 p-1"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Confirm Password *</Label>
-                  <Input id="confirmPassword" type={showPassword ? 'text' : 'password'} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm your password" className="bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-cyan-500" disabled={isLoading} />
+                {/* Strength Meter */}
+                <div className="flex gap-1 h-1.5 mt-2">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <div 
+                      key={s} 
+                      className={`h-full flex-1 rounded-full transition-colors ${
+                        passwordStrength >= s 
+                          ? 'bg-cyan-500 dark:bg-cyan-400' 
+                          : 'bg-gray-200 dark:bg-gray-700'
+                      }`} 
+                    />
+                  ))}
                 </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {passwordStrength < 3 ? 'Weak password' : 
+                   passwordStrength < 4 ? 'Good password' : 
+                   'Strong password'}
+                </p>
               </div>
 
-              {error && (
-                <div className="rounded-lg bg-red-100 border border-red-200 p-3">
-                  <p className="text-sm text-red-700 flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    {error}
-                  </p>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">
+                  Confirm Password
+                </Label>
+                <Input 
+                  id="confirmPassword"
+                  type="password" 
+                  placeholder="••••••••" 
+                  required 
+                  value={confirmPassword} 
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg flex items-center gap-2 border border-red-200 dark:border-red-800">
+                <AlertCircle size={16} /> 
+                {error}
+              </div>
+            )}
+
+            <Button 
+              type="submit" 
+              className="w-full bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-500 dark:hover:bg-cyan-600 h-11 sm:h-12 text-base sm:text-lg font-bold transition-colors"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 size-4 sm:size-5" />
+                  Creating Account...
+                </>
+              ) : (
+                'Create Account'
               )}
+            </Button>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-semibold" disabled={isLoading}>
-                {isLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creating Account...</> : 'Create School Account'}
-              </Button>
-
-              <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-200">
-                Already have an account?{' '}
-                <Link href="/auth/login" className="text-cyan-600 hover:text-cyan-700 hover:underline font-medium">Log in</Link>
-              </div>
-            </form>
-          </CardContent>
-        </div>
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+              Already have an account?{' '}
+              <Link 
+                href="/login" 
+                className="text-cyan-600 dark:text-cyan-400 font-semibold hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors"
+              >
+                Sign In
+              </Link>
+            </p>
+          </form>
+        </CardContent>
       </Card>
     </div>
   )

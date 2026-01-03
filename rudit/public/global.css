@@ -1,0 +1,24 @@
+/* Styling for the Tiptap Editor Surface */
+.tiptap {
+    outline: none !important;
+    min-height: 500px;
+  }
+  
+  .tiptap p {
+    margin: 1em 0;
+  }
+  
+  /* Ensure the editor looks like a document */
+  .ProseMirror {
+    padding: 40px;
+    background-color: white;
+    min-height: 600px;
+  }
+  
+  /* Fix for images inside the editor */
+  .tiptap img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+  }
+  

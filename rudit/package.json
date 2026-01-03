@@ -13,6 +13,9 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.87.3",
+    "@tiptap/pm": "^3.14.0",
+    "@tiptap/react": "^3.14.0",
+    "@tiptap/starter-kit": "^3.14.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "isomorphic-dompurify": "^2.30.0",
@@ -21,10 +24,12 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "recharts": "^3.6.0",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "tiptap": "^1.32.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

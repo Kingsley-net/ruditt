@@ -123,3 +123,21 @@
     @apply bg-background text-foreground;
   }
 }
+/* Crucial for Tiptap to display your WOW templates */
+.tiptap-editor .ProseMirror {
+  outline: none;
+  min-height: 600px;
+}
+
+/* Force standard display for divs in the editor */
+.tiptap-editor div {
+  display: block;
+}
+
+/* Ensure images don't overflow */
+.tiptap-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+}
+
