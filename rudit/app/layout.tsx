@@ -11,11 +11,16 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
 export const metadata: Metadata = {
-  title: "Rudit",
-  description: "Rudit Nigeria letyou create your school website and management system in 10 minutes ",
+  title: "Rudit — Build & Manage School Websites Effortlessly",
+  description:
+    "Rudit helps schools create, manage, and scale modern websites in minutes. One platform for multiple schools, admissions, updates, and growth.",
+  metadataBase: new URL("https://rudit.com.ng"),
+  alternates: {
+    canonical: "https://rudit.com.ng/",
+  },
 };
+
 
 export default function RootLayout({
   children,
