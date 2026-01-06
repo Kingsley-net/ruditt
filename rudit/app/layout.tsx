@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "Rudit helps schools create, manage, and scale modern websites in minutes. One platform for multiple schools, admissions, updates, and growth.",
   metadataBase: new URL("https://rudit.com.ng"),
   alternates: {
-    canonical: "https://rudit.com.ng/",
+    canonical: "https://www.rudit.com.ng/",
   },
 };
 
