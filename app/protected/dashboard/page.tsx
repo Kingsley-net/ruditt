@@ -216,6 +216,7 @@ export default function DashboardPage() {
                 {isLocked ? "Your school is in private mode." : "Your portal is live."}
               </p>
             </header>
+          
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <MetricCard title="Active Students" value={isLocked ? "Locked" : "0"} locked={isLocked} primary={primaryColor} />

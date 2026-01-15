@@ -206,7 +206,7 @@ export function LoginForm({ className, ...props }: ComponentPropsWithoutRef<'div
                 type="email"
                 placeholder="Enter your email"
                 required
-                ref={el => inputRefs.current.email = el}
+                ref={el => { inputRefs.current.email = el; }}
                 value={email}
                 onChange={(e) => onUserTyping('email', setEmail, e.target.value)}
                 onFocus={() => handleFocus('email')}
@@ -234,7 +234,7 @@ export function LoginForm({ className, ...props }: ComponentPropsWithoutRef<'div
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   required
-                  ref={el => inputRefs.current.password = el}
+                  ref={el => { inputRefs.current.password = el; }}
                   value={password}
                   onChange={(e) => onUserTyping('password', setPassword, e.target.value)}
                   onFocus={() => handleFocus('password')}
@@ -289,7 +289,7 @@ export function LoginForm({ className, ...props }: ComponentPropsWithoutRef<'div
 
             <Button
               type="submit"
-              ref={el => inputRefs.current.submit = el}
+              ref={el => { inputRefs.current.submit = el; }}
               onFocus={() => handleFocus('submit')}
               data-fieldid="submit"
               className={cn("w-full bg-gradient-to-r from-cyan-500 to-teal-500 dark:from-cyan-600 dark:to-teal-600 hover:from-cyan-600 hover:to-teal-600 dark:hover:from-cyan-700 dark:hover:to-teal-700 text-white font-semibold flex items-center justify-center gap-2 py-2.5 sm:py-3 text-sm sm:text-base transition-all", {

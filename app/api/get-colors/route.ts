@@ -1,25 +1,29 @@
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import getColors from 'get-image-colors';
+import path from 'path';
+import fs from 'fs/promises';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const imageUrl = searchParams.get('imageUrl');
-
-  if (!imageUrl) {
-    return NextResponse.json({ error: 'Image URL is required' }, { status: 400 });
-  }
-
+export async function POST(req: NextRequest) {
   try {
-    const colors = await getColors(imageUrl, {
-      count: 5, // Increased from 2 to 5
+    const data = await req.formData();
+    const file: File | null = data.get('file') as unknown as File;
+
+    if (!file) {
+      return NextResponse.json({ success: false, error: 'No file provided.' });
+    }
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const colors = await getColors(buffer, {
       type: 'image/png',
     });
-    const palette = colors.map(color => color.hex());
+    const palette = colors.map((color: { hex: () => string }) => color.hex());
 
     return NextResponse.json({ palette });
   } catch (error) {
-    console.error('Error getting image colors:', error);
-    return NextResponse.json({ error: 'Failed to extract colors from image' }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ success: false, error: 'Error processing image.' });
   }
 }

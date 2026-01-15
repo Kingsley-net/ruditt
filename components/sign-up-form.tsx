@@ -242,7 +242,7 @@ export function SignUpForm() {
           }
         } else if (focusedFieldId === 'submit') {
           // If Enter is pressed on the submit button, trigger form submission
-          handleSubmit(e);
+          handleSubmit(e as any);
         }
       }
     }
@@ -275,7 +275,7 @@ export function SignUpForm() {
               <Label className="text-slate-700 dark:text-slate-300 font-medium">First Name</Label>
               <Input
                 disabled={isSuccess}
-                ref={el => inputRefs.current.firstName = el}
+                ref={el => { inputRefs.current.firstName = el; }}
                 value={firstName}
                 onChange={(e) => onUserTyping('firstName', setFirstName, e.target.value)}
                 onFocus={() => handleFocus('firstName')}
@@ -287,7 +287,7 @@ export function SignUpForm() {
               <Label className="text-slate-700 dark:text-slate-300 font-medium">Last Name</Label>
               <Input
                 disabled={isSuccess}
-                ref={el => inputRefs.current.lastName = el}
+                ref={el => { inputRefs.current.lastName = el; }}
                 value={lastName}
                 onChange={(e) => onUserTyping('lastName', setLastName, e.target.value)}
                 onFocus={() => handleFocus('lastName')}
@@ -302,7 +302,7 @@ export function SignUpForm() {
             <Input
               disabled={isSuccess}
               type="email"
-              ref={el => inputRefs.current.email = el}
+              ref={el => { inputRefs.current.email = el; }}
               value={email}
               onChange={(e) => onUserTyping('email', setEmail, e.target.value)}
               onFocus={() => handleFocus('email')}
@@ -317,7 +317,7 @@ export function SignUpForm() {
               <Input
                 disabled={isSuccess}
                 type="password"
-                ref={el => inputRefs.current.password = el}
+                ref={el => { inputRefs.current.password = el; }}
                 value={password}
                 onChange={(e) => onUserTyping('password', setPassword, e.target.value)}
                 onFocus={() => handleFocus('password')}
@@ -330,7 +330,7 @@ export function SignUpForm() {
               <Input
                 disabled={isSuccess}
                 type="password"
-                ref={el => inputRefs.current.confirmPassword = el}
+                ref={el => { inputRefs.current.confirmPassword = el; }}
                 value={confirmPassword}
                 onChange={(e) => onUserTyping('confirmPassword', setConfirmPassword, e.target.value)}
                 onFocus={() => handleFocus('confirmPassword')}
@@ -353,7 +353,7 @@ export function SignUpForm() {
               onFocus={() => handleFocus('schoolName')}
               data-fieldid="schoolName"
               className={`h-12 text-slate-900 dark:text-white transition-all duration-300 ${getHighlightRing('schoolName')}`}
-              ref={el => inputRefs.current.schoolName = el}
+              ref={el => { inputRefs.current.schoolName = el; }}
             />
           </div>
 
@@ -370,7 +370,7 @@ export function SignUpForm() {
               onFocus={() => handleFocus('schoolSlug')}
               data-fieldid="schoolSlug"
               className={`h-12 text-slate-900 dark:text-white transition-all duration-300 ${getHighlightRing('schoolSlug')}`}
-              ref={el => inputRefs.current.schoolSlug = el}
+              ref={el => { inputRefs.current.schoolSlug = el; }}
             />
           </div>
 
@@ -383,7 +383,7 @@ export function SignUpForm() {
               onFocus={() => handleFocus('logoUpload')}
               tabIndex={0} // Make div focusable
               data-fieldid="logoUpload"
-              ref={el => inputRefs.current.logoUpload = el}
+              ref={el => { inputRefs.current.logoUpload = el; }}
             >
               <input
                 id="logo-upload"
@@ -409,7 +409,7 @@ export function SignUpForm() {
             <Checkbox
               disabled={isSuccess}
               id="terms"
-              ref={el => inputRefs.current.terms = el as any}
+              ref={el => { inputRefs.current.terms = el as any; }}
               checked={agreeToTerms}
               onCheckedChange={(v) => { setAgreeToTerms(!!v); triggerAdvance('terms', 2000); }}
               onFocus={() => handleFocus('terms')}
@@ -424,7 +424,7 @@ export function SignUpForm() {
           <Button
             type="submit"
             disabled={isSubmitting || isSuccess || !agreeToTerms} // Disable if terms not agreed
-            ref={el => inputRefs.current.submit = el}
+            ref={el => { inputRefs.current.submit = el; }}
             onFocus={() => handleFocus('submit')}
             data-fieldid="submit"
             className={`w-full h-14 text-lg font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
