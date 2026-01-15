@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -13,8 +12,6 @@ import {
   Save, 
   Loader,
   ArrowLeft,
-  CheckCircle2,
-  ExternalLink
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -24,15 +21,10 @@ export default function SettingsPage() {
   const [user, setUser] = useState<any>(null)
   const [school, setSchool] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [colorPalette, setColorPalette] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
 
   useEffect(() => { fetchSettingsData() }, [])
-  
-  useEffect(() => { 
-    if (school?.logo_url) { extractColors(school.logo_url) } 
-  }, [school])
 
   async function fetchSettingsData() {
     setIsLoading(true)
@@ -57,32 +49,6 @@ export default function SettingsPage() {
     finally { setIsLoading(false) }
   }
 
-  async function extractColors(imageUrl: string) {
-    try {
-      const response = await fetch('/api/update-and-check-contrast', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ imageUrl }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`)
-      }
-
-      const data = await response.json();
-      const { color } = data;
-      
-      if(color) {
-        setColorPalette([color])
-        setSelectedColor(color)
-      }
-    } catch (error) { 
-      console.error('Failed to extract colors:', error);
-    }
-  }
-
   async function handleSaveColor() {
     if (!selectedColor || !school) return
     setIsSaving(true)
@@ -99,7 +65,8 @@ export default function SettingsPage() {
     }
   }
 
-  const primary = selectedColor || colorPalette[0] || '#06B6D4';
+  // Fallback to a default brand color if none is set in the DB
+  const primary = selectedColor || '#06B6D4';
 
   if (isLoading) return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#F8FAFC]">
@@ -152,7 +119,7 @@ export default function SettingsPage() {
                       {school?.logo_url ? (
                         <img src={school.logo_url} alt="Logo" className="w-full h-full object-contain p-4" />
                       ) : (
-                  <p></p>
+                        <p></p>
                       )}
                     </div>
                     <button className="absolute -bottom-2 -right-2 p-3 bg-white border border-slate-200 shadow-xl rounded-2xl hover:bg-slate-50 transition-colors text-slate-600">
@@ -169,15 +136,14 @@ export default function SettingsPage() {
 
                 <div className="space-y-4">
                   <h3 className="font-bold text-lg">Brand Color</h3>
-                  <div className="flex gap-2">
-                    {colorPalette.map(color => (
-                      <button 
-                        key={color}
-                        onClick={() => setSelectedColor(color)}
-                        className={`w-12 h-12 rounded-full border-4 ${selectedColor === color ? 'border-blue-500' : 'border-transparent'}`}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
+                  <div className="flex items-center gap-4">
+                    <input 
+                      type="color" 
+                      value={selectedColor || '#06B6D4'} 
+                      onChange={(e) => setSelectedColor(e.target.value)}
+                      className="w-12 h-12 rounded-lg cursor-pointer border-none"
+                    />
+                    <span className="text-sm font-mono text-slate-500 uppercase">{selectedColor}</span>
                   </div>
                 </div>
 

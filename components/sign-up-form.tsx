@@ -14,23 +14,22 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
-import { LocateFixed, Sparkles, CheckCircle2, Loader2, Upload } from 'lucide-react'; // Added Upload icon
-import { createClient } from '@/lib/supabase/client'; // Assuming Supabase client is available here
-import { v4 as uuidv4 } from 'uuid'; // Import uuid
+import { LocateFixed, Sparkles, CheckCircle2, Loader2, Upload } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
 
-const supabase = createClient(); // Initialize Supabase client
+const supabase = createClient();
 
+// Updated field order to include school inputs
 const FIELD_ORDER = [
   'firstName',
   'lastName',
   'email',
   'password',
   'confirmPassword',
-  // 'role', // Removed
-  'gradeLevel', // Assuming this field exists somewhere, otherwise it won't receive focus
-  'numberOfStudents', // Assuming this field exists somewhere, otherwise it won't receive focus
-  'location', // Assuming this field exists somewhere, otherwise it won't receive focus
-  'logoUpload', // Added for the logo upload button
+  'schoolName',
+  'schoolSlug',
+  'logoUpload',
   'terms',
   'submit'
 ];
@@ -41,22 +40,17 @@ export function SignUpForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Form States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [gradeLevel, setGradeLevel] = useState<number[]>([9]);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [activeVoiceField, setActiveVoiceField] = useState<string | null>(null);
-  // Add schoolName and schoolSlug states
   const [schoolName, setSchoolName] = useState('');
   const [schoolSlug, setSchoolSlug] = useState('');
 
-
-  // Logo upload states
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,19 +69,13 @@ export function SignUpForm() {
 
   const uploadLogo = async (): Promise<string | null> => {
     if (!logoFile) return null;
-
-    setIsSubmitting(true);
     const filePath = `school_logos/${uuidv4()}-${logoFile.name}`;
-
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(filePath, logoFile, {
-        upsert: true,
-      });
+      .upload(filePath, logoFile, { upsert: true });
 
     if (uploadError) {
       console.error('Error uploading logo:', uploadError);
-      setIsSubmitting(false);
       return null;
     }
 
@@ -95,8 +83,6 @@ export function SignUpForm() {
       .from('avatars')
       .getPublicUrl(filePath);
 
-    setLogoUrl(publicUrl);
-    setIsSubmitting(false);
     return publicUrl;
   };
 
@@ -113,55 +99,56 @@ export function SignUpForm() {
     setIsSubmitting(true);
     setSuccessMessage('');
 
-    let uploadedLogoUrl: string | null = null;
-    if (logoFile) {
-      uploadedLogoUrl = await uploadLogo();
-      if (!uploadedLogoUrl) {
-        setSuccessMessage('Failed to upload logo. Please try again.');
-        setIsSubmitting(false);
-        return;
-      }
-    }
-
-    // Simulate an API call for user signup and school creation
     try {
-      // Example of how you might save to Supabase (adjust as per your actual schema)
-      // This is a placeholder for your actual signup logic.
-      const { data: user, error: signUpError } = await supabase.auth.signUp({
+      // 1. SIGN UP THE USER
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             first_name: firstName,
             last_name: lastName,
-            // role: role, // if you reintroduce role
-            // grade_level: gradeLevel[0], // if you reintroduce gradeLevel
           }
         }
       });
 
       if (signUpError) throw signUpError;
+      const userId = authData.user?.id;
 
-      if (user?.user) {
-        // Assuming a school table linked to user profiles
-        const { error: schoolError } = await supabase.from('schools').insert({
-          // You'd typically link this to the user's profile or create a profile for them
-          // For simplicity, directly saving logo_url here. Adjust based on your schema.
-          id: user.user.id, // Assuming a id column to link school to the signed-up user
-          name: schoolName,
-          slug: schoolSlug,
-          logo_url: uploadedLogoUrl,
-          // other school data if any
-        });
+      if (userId) {
+        // 2. UPLOAD LOGO IF EXISTS
+        let uploadedLogoUrl = null;
+        if (logoFile) {
+          uploadedLogoUrl = await uploadLogo();
+        }
+
+        // 3. CREATE THE SCHOOL AND LINK THE ADMIN_ID
+        const { data: schoolData, error: schoolError } = await supabase
+          .from('schools')
+          .insert({
+            name: schoolName,
+            slug: schoolSlug,
+            logo_url: uploadedLogoUrl,
+            admin_id: userId, // CRITICAL FIX: Linking the school to the user
+          })
+          .select()
+          .single();
 
         if (schoolError) throw schoolError;
-      }
 
+        // 4. UPDATE USER PROFILE WITH SCHOOL_ID
+        if (schoolData) {
+          await supabase
+            .from('profiles')
+            .update({ school_id: schoolData.id })
+            .eq('id', userId);
+        }
+      }
 
       setIsSubmitting(false);
       setIsSuccess(true);
       setSuccessMessage('Sign up successful! Please check your email for a confirmation link.');
-      speak("Sign up successful. Please check your email for a confirmation link.");
+      speak("Sign up successful. Your school has been created. Please check your email to confirm.");
 
     } catch (error: any) {
       console.error('Signup error:', error.message);
@@ -200,11 +187,10 @@ export function SignUpForm() {
       firstName: "Welcome! Let's start with your first name.",
       lastName: "Excellent. Now, type your last name.",
       email: "I will need your email address next.",
-      password: "Choose a strong password. I'll watch the strength for you.",
+      password: "Choose a strong password.",
       confirmPassword: "Confirm that password one more time.",
-      schoolName: "What is the name of your school?", // Add prompt for school name
-      schoolSlug: "Enter a unique web address for your school.", // Add prompt for school slug
-      gradeLevel: "Slide to set your current grade level.",
+      schoolName: "What is the name of your school?",
+      schoolSlug: "Enter a unique web address for your school.",
       logoUpload: "Please upload your school's logo.",
       terms: "Lastly, agree to our terms and conditions.",
       submit: "You are all done. You can now submit the form."
@@ -217,36 +203,28 @@ export function SignUpForm() {
     if (val.length > 1) triggerAdvance(fieldId, 5000);
   };
 
-  // New Keydown handler for Enter key navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent default form submission on enter
-
       const target = e.target as HTMLElement;
-      // Use dataset.fieldid for custom inputs, or check tag for native inputs
       const focusedFieldId = target.dataset.fieldid || (target.tagName === 'INPUT' ? (target as HTMLInputElement).name : undefined);
-
 
       if (focusedFieldId) {
         const currentIndex = FIELD_ORDER.indexOf(focusedFieldId);
         if (currentIndex !== -1 && currentIndex < FIELD_ORDER.length - 1) {
+          e.preventDefault();
           const nextFieldId = FIELD_ORDER[currentIndex + 1];
           const nextInput = inputRefs.current[nextFieldId];
           if (nextInput) {
-            // For file input, trigger click
             if (nextFieldId === 'logoUpload' && fileInputRef.current) {
               fileInputRef.current.click();
             } else {
               nextInput.focus();
             }
           }
-        } else if (focusedFieldId === 'submit') {
-          // If Enter is pressed on the submit button, trigger form submission
-          handleSubmit(e as any);
         }
       }
     }
-  }, [triggerAdvance, handleSubmit]); // Include handleSubmit in dependencies
+  }, [triggerAdvance]);
 
   const getHighlightRing = (id: string) =>
     activeVoiceField === id
@@ -340,13 +318,10 @@ export function SignUpForm() {
             </div>
           </div>
 
-          {/* School Name Input */}
           <div className="space-y-2">
             <Label className="text-slate-700 dark:text-slate-300 font-medium">School Name</Label>
             <Input
               disabled={isSuccess}
-              type="text"
-              id="school-name"
               placeholder="Ruditt Academy"
               value={schoolName}
               onChange={(e) => onUserTyping('schoolName', setSchoolName, e.target.value)}
@@ -357,13 +332,10 @@ export function SignUpForm() {
             />
           </div>
 
-          {/* School Slug Input */}
           <div className="space-y-2">
             <Label className="text-slate-700 dark:text-slate-300 font-medium">School Slug</Label>
             <Input
               disabled={isSuccess}
-              type="text"
-              id="school-slug"
               placeholder="ruditt-academy"
               value={schoolSlug}
               onChange={(e) => onUserTyping('schoolSlug', setSchoolSlug, e.target.value)}
@@ -374,19 +346,17 @@ export function SignUpForm() {
             />
           </div>
 
-          {/* Logo Upload Section */}
           <div className="space-y-2">
             <Label className="text-slate-700 dark:text-slate-300 font-medium">School Logo</Label>
             <div
               className={`flex items-center justify-center p-4 h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 ${getHighlightRing('logoUpload')}`}
               onClick={() => fileInputRef.current?.click()}
               onFocus={() => handleFocus('logoUpload')}
-              tabIndex={0} // Make div focusable
+              tabIndex={0}
               data-fieldid="logoUpload"
               ref={el => { inputRefs.current.logoUpload = el; }}
             >
               <input
-                id="logo-upload"
                 type="file"
                 accept="image/*"
                 ref={fileInputRef}
@@ -414,7 +384,6 @@ export function SignUpForm() {
               onCheckedChange={(v) => { setAgreeToTerms(!!v); triggerAdvance('terms', 2000); }}
               onFocus={() => handleFocus('terms')}
               data-fieldid="terms"
-              className="border-slate-400 dark:border-slate-500"
             />
             <Label htmlFor="terms" className="text-sm text-slate-600 dark:text-slate-400 cursor-pointer">
               I agree to the <span className="text-blue-600 dark:text-blue-400 underline">Terms and Conditions</span>
@@ -423,24 +392,16 @@ export function SignUpForm() {
 
           <Button
             type="submit"
-            disabled={isSubmitting || isSuccess || !agreeToTerms} // Disable if terms not agreed
+            disabled={isSubmitting || isSuccess || !agreeToTerms}
             ref={el => { inputRefs.current.submit = el; }}
             onFocus={() => handleFocus('submit')}
             data-fieldid="submit"
-            className={`w-full h-14 text-lg font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
-              isSuccess
-                ? 'bg-green-600 hover:bg-green-600'
-                : activeVoiceField === 'submit' ? 'bg-blue-600 dark:bg-blue-500' : 'bg-slate-900 dark:bg-slate-100 dark:text-slate-900'
+            className={`w-full h-14 text-lg font-bold flex items-center justify-center gap-2 ${
+              isSuccess ? 'bg-green-600' : activeVoiceField === 'submit' ? 'bg-blue-600' : 'bg-slate-900'
             }`}
           >
-            {isSubmitting ? <Loader2 className="animate-spin" /> : null}
-            {isSuccess ? (
-              <>
-                <CheckCircle2 /> Registered
-              </>
-            ) : (
-              "Complete Registration"
-            )}
+            {isSubmitting && <Loader2 className="animate-spin" />}
+            {isSuccess ? <><CheckCircle2 /> Registered</> : "Complete Registration"}
           </Button>
         </form>
       </div>
